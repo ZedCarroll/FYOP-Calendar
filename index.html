@@ -1,41 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Waffle House Fiscal Time</title>
-
-<style>
-    body {
-        margin: 0;
-        height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #ffffff;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-    }
-
-    #tile {
-        background: #000000;
-        color: #ffeb00;
-        border: 6px solid #ffeb00;
-        border-radius: 28px;
-        padding: 40px 60px;
-        font-size: 48px;
-        font-weight: 700;
-        letter-spacing: 0.5px;
-        text-align: center;
-        white-space: nowrap;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-    }
-</style>
-</head>
-
-<body>
-
-<div id="tile">Loading…</div>
-
 <script>
 (function () {
 
@@ -66,40 +28,26 @@ const opData = [
   {FY:26,OP:10,Start:"2026-02-09",End:"2026-03-08"},
   {FY:26,OP:11,Start:"2026-03-09",End:"2026-04-05"},
   {FY:26,OP:12,Start:"2026-04-06",End:"2026-05-03"},
-  {FY:26,OP:13,Start:"2026-05-04",End:"2026-05-31"},
-
-  {FY:27,OP:1,Start:"2026-06-01",End:"2026-06-28"},
-  {FY:27,OP:2,Start:"2026-06-29",End:"2026-07-26"},
-  {FY:27,OP:3,Start:"2026-07-27",End:"2026-08-23"},
-  {FY:27,OP:4,Start:"2026-08-24",End:"2026-09-20"},
-  {FY:27,OP:5,Start:"2026-09-21",End:"2026-10-18"},
-  {FY:27,OP:6,Start:"2026-10-19",End:"2026-11-15"},
-  {FY:27,OP:7,Start:"2026-11-16",End:"2026-12-13"},
-  {FY:27,OP:8,Start:"2026-12-14",End:"2027-01-10"},
-  {FY:27,OP:9,Start:"2027-01-11",End:"2027-02-07"},
-  {FY:27,OP:10,Start:"2027-02-08",End:"2027-03-07"},
-  {FY:27,OP:11,Start:"2027-03-08",End:"2027-04-04"},
-  {FY:27,OP:12,Start:"2027-04-05",End:"2027-05-02"},
-  {FY:27,OP:13,Start:"2027-05-03",End:"2027-05-30"}
+  {FY:26,OP:13,Start:"2026-05-04",End:"2026-05-31"}
 ];
 
-// Get Waffle House "day" (2 PM Eastern)
-function getWaffleDay() {
+// Get today's date at midnight Eastern
+function getEasternMidnight() {
     const now = new Date();
-    const et = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
-    if (et.getHours() < 14) et.setDate(et.getDate() - 1);
-    et.setHours(14,0,0,0);
+    const et = new Date(
+        now.toLocaleString("en-US", { timeZone: "America/New_York" })
+    );
+    et.setHours(0, 0, 0, 0);
     return et;
 }
 
 function render() {
-    const today = getWaffleDay();
+    const today = getEasternMidnight();
     let current = null;
 
     for (const op of opData) {
-        const start = new Date(op.Start + "T14:00:00");
-        const end = new Date(op.End + "T14:00:00");
-        end.setHours(23,59,59,999);
+        const start = new Date(op.Start + "T00:00:00");
+        const end = new Date(op.End + "T23:59:59");
 
         if (today >= start && today <= end) {
             current = op;
@@ -112,7 +60,7 @@ function render() {
         return;
     }
 
-    const opStart = new Date(current.Start + "T14:00:00");
+    const opStart = new Date(current.Start + "T00:00:00");
     const day = Math.floor((today - opStart) / 86400000) + 1;
     const week = Math.ceil(day / 7);
 
