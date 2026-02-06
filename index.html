@@ -108,7 +108,7 @@ function render() {
     }
 
     const opStart = easternMidnight(current.Start);
-    const day = Math.floor((today - opStart) / 86400000) + 1;
+    const day = Math.floor((today - opStart) / 86400000) + 0;
     const week = Math.ceil(day / 7);
 
     document.getElementById("tile").textContent =
