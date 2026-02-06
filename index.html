@@ -98,7 +98,10 @@ function render() {
         return;
     }
 
-    const opStart = new Date(current.Start + "T00:00:00");
+    const opStart = new Date(
+  new Date(current.Start + "T00:00:00")
+    .toLocaleString("en-US", { timeZone: "America/New_York" })
+);
     const day = Math.floor((today - opStart) / 86400000) + 1;
     const week = Math.ceil(day / 7);
 
