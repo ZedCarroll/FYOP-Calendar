@@ -1,123 +1,135 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Waffle House Fiscal Time</title>
+<meta charset="UTF-8">
+<title>FY OP Widget</title>
 
 <style>
-    body {
-        margin: 0;
-        height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #ffffff;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-    }
-
-    #tile {
-        background: #000000;
-        color: #ffeb00;
-        border: 6px solid #ffeb00;
-        border-radius: 28px;
-        padding: 40px 60px;
-        font-size: 48px;
-        font-weight: 700;
-        letter-spacing: 0.5px;
-        text-align: center;
-        white-space: nowrap;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-    }
+body{
+  background:black;
+  color:#f8ee21;
+  font-family: Arial, sans-serif;
+  font-weight:bold;
+  text-align:center;
+  font-size:36px;
+  margin-top:40px;
+}
 </style>
 </head>
 
 <body>
 
-<div id="tile">Loading…</div>
+<div id="fyop"></div>
 
 <script>
-(function () {
 
-const opData = [
-  {FY:25,OP:1,Start:"2024-06-03",End:"2024-06-30"},
-  {FY:25,OP:2,Start:"2024-07-01",End:"2024-07-28"},
-  {FY:25,OP:3,Start:"2024-07-29",End:"2024-08-25"},
-  {FY:25,OP:4,Start:"2024-08-26",End:"2024-09-22"},
-  {FY:25,OP:5,Start:"2024-09-23",End:"2024-10-20"},
-  {FY:25,OP:6,Start:"2024-10-21",End:"2024-11-17"},
-  {FY:25,OP:7,Start:"2024-11-18",End:"2024-12-15"},
-  {FY:25,OP:8,Start:"2024-12-16",End:"2025-01-12"},
-  {FY:25,OP:9,Start:"2025-01-13",End:"2025-02-09"},
-  {FY:25,OP:10,Start:"2025-02-10",End:"2025-03-09"},
-  {FY:25,OP:11,Start:"2025-03-10",End:"2025-04-06"},
-  {FY:25,OP:12,Start:"2025-04-07",End:"2025-05-04"},
-  {FY:25,OP:13,Start:"2025-05-05",End:"2025-06-01"},
+/* -------- FULL OFFICIAL FY OP START TABLE ---------- */
+const opTable = [
+ {fy:25,op:1,start:"2024-06-03"},
+ {fy:25,op:2,start:"2024-07-01"},
+ {fy:25,op:3,start:"2024-07-29"},
+ {fy:25,op:4,start:"2024-08-26"},
+ {fy:25,op:5,start:"2024-09-23"},
+ {fy:25,op:6,start:"2024-10-21"},
+ {fy:25,op:7,start:"2024-11-18"},
+ {fy:25,op:8,start:"2024-12-16"},
+ {fy:25,op:9,start:"2025-01-13"},
+ {fy:25,op:10,start:"2025-02-10"},
+ {fy:25,op:11,start:"2025-03-10"},
+ {fy:25,op:12,start:"2025-04-07"},
+ {fy:25,op:13,start:"2025-05-05"},
 
-  {FY:26,OP:1,Start:"2025-06-02",End:"2025-06-29"},
-  {FY:26,OP:2,Start:"2025-06-30",End:"2025-07-27"},
-  {FY:26,OP:3,Start:"2025-07-28",End:"2025-08-24"},
-  {FY:26,OP:4,Start:"2025-08-25",End:"2025-09-21"},
-  {FY:26,OP:5,Start:"2025-09-22",End:"2025-10-19"},
-  {FY:26,OP:6,Start:"2025-10-20",End:"2025-11-16"},
-  {FY:26,OP:7,Start:"2025-11-17",End:"2025-12-14"},
-  {FY:26,OP:8,Start:"2025-12-15",End:"2026-01-11"},
-  {FY:26,OP:9,Start:"2026-01-12",End:"2026-02-08"},
-  {FY:26,OP:10,Start:"2026-02-09",End:"2026-03-08"},
-  {FY:26,OP:11,Start:"2026-03-09",End:"2026-04-05"},
-  {FY:26,OP:12,Start:"2026-04-06",End:"2026-05-03"},
-  {FY:26,OP:13,Start:"2026-05-04",End:"2026-05-31"}
+ {fy:26,op:1,start:"2025-06-02"},
+ {fy:26,op:2,start:"2025-06-30"},
+ {fy:26,op:3,start:"2025-07-28"},
+ {fy:26,op:4,start:"2025-08-25"},
+ {fy:26,op:5,start:"2025-09-22"},
+ {fy:26,op:6,start:"2025-10-20"},
+ {fy:26,op:7,start:"2025-11-17"},
+ {fy:26,op:8,start:"2025-12-15"},
+ {fy:26,op:9,start:"2026-01-12"},
+ {fy:26,op:10,start:"2026-02-09"},
+ {fy:26,op:11,start:"2026-03-09"},
+ {fy:26,op:12,start:"2026-04-06"},
+ {fy:26,op:13,start:"2026-05-04"},
+
+ /* Continue rest if desired */
 ];
 
-// Normalize any YYYY-MM-DD date string to midnight Eastern
-function easternMidnight(dateStr) {
-    return new Date(
-        new Date(dateStr + "T00:00:00")
-            .toLocaleString("en-US", { timeZone: "America/New_York" })
-    );
+/* ---------- EST + 2PM BUSINESS DAY ---------- */
+function getBusinessDate(){
+
+  const now = new Date();
+
+  const est = new Date(
+    now.toLocaleString("en-US",{timeZone:"America/New_York"})
+  );
+
+  if(est.getHours() < 14){
+      est.setDate(est.getDate()-1);
+  }
+
+  return est;
 }
 
-// Get today's date at midnight Eastern
-function getTodayEasternMidnight() {
-    const now = new Date();
-    const et = new Date(
-        now.toLocaleString("en-US", { timeZone: "America/New_York" })
-    );
-    et.setHours(0, 0, 0, 0);
-    return et;
+/* ---------- FIND CURRENT OP ---------- */
+function getCurrentOP(date){
+
+  for(let i=opTable.length-1;i>=0;i--){
+      if(date >= new Date(opTable[i].start)){
+          return opTable[i];
+      }
+  }
+  return opTable[0];
 }
 
-function render() {
-    const today = getTodayEasternMidnight();
-    let current = null;
+/* ---------- CALCULATE OP DAY ---------- */
+function getOPDay(date, start){
 
-    for (const op of opData) {
-        const start = easternMidnight(op.Start);
-        const end = easternMidnight(op.End);
-        end.setHours(23, 59, 59, 999);
-
-        if (today >= start && today <= end) {
-            current = op;
-            break;
-        }
-    }
-
-    if (!current) {
-        document.getElementById("tile").textContent = "Date not found";
-        return;
-    }
-
-    const opStart = easternMidnight(current.Start);
-    const day = Math.floor((today - opStart) / 86400000) + 0;
-    const week = Math.ceil(day / 7);
-
-    document.getElementById("tile").textContent =
-        `FY${current.FY} OP${current.OP} Week ${week} Day ${day}`;
+  return Math.floor((date - new Date(start)) / 86400000) + 1;
 }
 
-render();
-})();
+/* ---------- CALCULATE WEEK + WEEKDAY ---------- */
+function getWeekDayData(opDay, estNow){
+
+  const week = Math.floor((opDay-1)/7)+1;
+
+  let weekday = (estNow.getDay()+6)%7;
+
+  if(estNow.getDay()===1 && estNow.getHours()<14){
+      weekday = 0;
+  }else{
+      weekday = weekday + 1;
+  }
+
+  return {week, weekday};
+}
+
+/* ---------- UPDATE DISPLAY ---------- */
+function update(){
+
+  const businessDate = getBusinessDate();
+
+  const estNow = new Date(
+    new Date().toLocaleString("en-US",{timeZone:"America/New_York"})
+  );
+
+  const op = getCurrentOP(businessDate);
+
+  const opDay = getOPDay(businessDate, op.start);
+
+  const weekData = getWeekDayData(opDay, estNow);
+
+  document.getElementById("fyop").innerHTML =
+   "FY"+op.fy+
+   " OP"+op.op+
+   " Week "+weekData.week+
+   " Day "+weekData.weekday;
+}
+
+update();
+setInterval(update,60000);
+
 </script>
-
 </body>
 </html>
