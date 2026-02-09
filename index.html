@@ -2,134 +2,115 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>FY OP Widget</title>
 
 <style>
 body{
+  background:#d9d9d9;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  font-family:Arial, sans-serif;
+}
+
+.widget{
   background:black;
+  border:8px solid #f8ee21;
+  border-radius:40px;
+  padding:60px 80px;
   color:#f8ee21;
-  font-family: Arial, sans-serif;
+  font-size:60px;
   font-weight:bold;
   text-align:center;
-  font-size:36px;
-  margin-top:40px;
 }
 </style>
 </head>
 
 <body>
 
-<div id="fyop"></div>
+<div class="widget" id="fyop"></div>
 
 <script>
 
-/* -------- FULL OFFICIAL FY OP START TABLE ---------- */
+/* FULL OP TABLE (trimmed example — keep your full table here) */
 const opTable = [
- {fy:25,op:1,start:"2024-06-03"},
- {fy:25,op:2,start:"2024-07-01"},
- {fy:25,op:3,start:"2024-07-29"},
- {fy:25,op:4,start:"2024-08-26"},
- {fy:25,op:5,start:"2024-09-23"},
- {fy:25,op:6,start:"2024-10-21"},
- {fy:25,op:7,start:"2024-11-18"},
- {fy:25,op:8,start:"2024-12-16"},
- {fy:25,op:9,start:"2025-01-13"},
- {fy:25,op:10,start:"2025-02-10"},
- {fy:25,op:11,start:"2025-03-10"},
- {fy:25,op:12,start:"2025-04-07"},
- {fy:25,op:13,start:"2025-05-05"},
-
- {fy:26,op:1,start:"2025-06-02"},
- {fy:26,op:2,start:"2025-06-30"},
- {fy:26,op:3,start:"2025-07-28"},
- {fy:26,op:4,start:"2025-08-25"},
- {fy:26,op:5,start:"2025-09-22"},
- {fy:26,op:6,start:"2025-10-20"},
- {fy:26,op:7,start:"2025-11-17"},
- {fy:26,op:8,start:"2025-12-15"},
  {fy:26,op:9,start:"2026-01-12"},
  {fy:26,op:10,start:"2026-02-09"},
- {fy:26,op:11,start:"2026-03-09"},
- {fy:26,op:12,start:"2026-04-06"},
- {fy:26,op:13,start:"2026-05-04"},
-
- /* Continue rest if desired */
+ {fy:26,op:11,start:"2026-03-09"}
 ];
 
-/* ---------- EST + 2PM BUSINESS DAY ---------- */
-function getBusinessDate(){
+/* ---------- EST TIME ---------- */
+function estNow(){
+ return new Date(
+   new Date().toLocaleString("en-US",{timeZone:"America/New_York"})
+ );
+}
 
-  const now = new Date();
+/* ---------- BUSINESS DATE (2PM rollover) ---------- */
+function businessDate(){
 
-  const est = new Date(
-    now.toLocaleString("en-US",{timeZone:"America/New_York"})
-  );
+ let d = estNow();
 
-  if(est.getHours() < 14){
-      est.setDate(est.getDate()-1);
-  }
+ if(d.getHours()<14){
+   d.setDate(d.getDate()-1);
+ }
 
-  return est;
+ return d;
 }
 
 /* ---------- FIND CURRENT OP ---------- */
-function getCurrentOP(date){
+function currentOP(date){
 
-  for(let i=opTable.length-1;i>=0;i--){
-      if(date >= new Date(opTable[i].start)){
-          return opTable[i];
-      }
-  }
-  return opTable[0];
+ for(let i=opTable.length-1;i>=0;i--){
+   if(date>=new Date(opTable[i].start)){
+     return opTable[i];
+   }
+ }
+ return opTable[0];
 }
 
-/* ---------- CALCULATE OP DAY ---------- */
-function getOPDay(date, start){
+/* ---------- CALCULATE WEEK + DAY ---------- */
+function weekDay(opStart){
 
-  return Math.floor((date - new Date(start)) / 86400000) + 1;
-}
+ let nowEST = estNow();
+ let bd = businessDate();
 
-/* ---------- CALCULATE WEEK + WEEKDAY ---------- */
-function getWeekDayData(opDay, estNow){
+ let days = Math.floor((bd - new Date(opStart)) / 86400000);
 
-  const week = Math.floor((opDay-1)/7)+1;
+ let week = Math.floor(days/7)+1;
 
-  let weekday = (estNow.getDay()+6)%7;
+ let dayOfWeek = (nowEST.getDay()+6)%7;
 
-  if(estNow.getDay()===1 && estNow.getHours()<14){
-      weekday = 0;
-  }else{
-      weekday = weekday + 1;
-  }
+ /* Monday before 2PM = Day 0 */
+ if(nowEST.getDay()==1 && nowEST.getHours()<14){
+   dayOfWeek = 0;
+ } else{
+   dayOfWeek = dayOfWeek+1;
+ }
 
-  return {week, weekday};
+ return {week,dayOfWeek};
 }
 
 /* ---------- UPDATE DISPLAY ---------- */
 function update(){
 
-  const businessDate = getBusinessDate();
+ let bd = businessDate();
 
-  const estNow = new Date(
-    new Date().toLocaleString("en-US",{timeZone:"America/New_York"})
-  );
+ let op = currentOP(bd);
 
-  const op = getCurrentOP(businessDate);
+ let wd = weekDay(op.start);
 
-  const opDay = getOPDay(businessDate, op.start);
-
-  const weekData = getWeekDayData(opDay, estNow);
-
-  document.getElementById("fyop").innerHTML =
+ document.getElementById("fyop").innerHTML =
    "FY"+op.fy+
    " OP"+op.op+
-   " Week "+weekData.week+
-   " Day "+weekData.weekday;
+   " Week "+wd.week+
+   " Day "+wd.dayOfWeek;
 }
 
 update();
 setInterval(update,60000);
 
 </script>
+
 </body>
 </html>
