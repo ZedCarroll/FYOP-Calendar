@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<title>Waffle House Fiscal Clock</title>
 
 <style>
 body{
@@ -19,98 +20,157 @@ body{
   border-radius:40px;
   padding:60px 80px;
   color:#f8ee21;
-  font-size:60px;
+  font-size:48px;
   font-weight:bold;
   text-align:center;
+  white-space:nowrap;
 }
 </style>
 </head>
 
 <body>
-
-<div class="widget" id="fyop"></div>
+<div id="output" class="widget">Loading...</div>
 
 <script>
 
-/* FULL OP TABLE (trimmed example — keep your full table here) */
-const opTable = [
- {fy:26,op:9,start:"2026-01-12"},
- {fy:26,op:10,start:"2026-02-09"},
- {fy:26,op:11,start:"2026-03-09"}
+/* =======================
+   FULL FY / OP TABLE
+   ======================= */
+
+const opData = [
+{FY:25,OP:1,Start:"2024-06-03",End:"2024-06-30"},
+{FY:25,OP:2,Start:"2024-07-01",End:"2024-07-28"},
+{FY:25,OP:3,Start:"2024-07-29",End:"2024-08-25"},
+{FY:25,OP:4,Start:"2024-08-26",End:"2024-09-22"},
+{FY:25,OP:5,Start:"2024-09-23",End:"2024-10-20"},
+{FY:25,OP:6,Start:"2024-10-21",End:"2024-11-17"},
+{FY:25,OP:7,Start:"2024-11-18",End:"2024-12-15"},
+{FY:25,OP:8,Start:"2024-12-16",End:"2025-01-12"},
+{FY:25,OP:9,Start:"2025-01-13",End:"2025-02-09"},
+{FY:25,OP:10,Start:"2025-02-10",End:"2025-03-09"},
+{FY:25,OP:11,Start:"2025-03-10",End:"2025-04-06"},
+{FY:25,OP:12,Start:"2025-04-07",End:"2025-05-04"},
+{FY:25,OP:13,Start:"2025-05-05",End:"2025-06-01"},
+
+{FY:26,OP:1,Start:"2025-06-02",End:"2025-06-29"},
+{FY:26,OP:2,Start:"2025-06-30",End:"2025-07-27"},
+{FY:26,OP:3,Start:"2025-07-28",End:"2025-08-24"},
+{FY:26,OP:4,Start:"2025-08-25",End:"2025-09-21"},
+{FY:26,OP:5,Start:"2025-09-22",End:"2025-10-19"},
+{FY:26,OP:6,Start:"2025-10-20",End:"2025-11-16"},
+{FY:26,OP:7,Start:"2025-11-17",End:"2025-12-14"},
+{FY:26,OP:8,Start:"2025-12-15",End:"2026-01-11"},
+{FY:26,OP:9,Start:"2026-01-12",End:"2026-02-08"},
+{FY:26,OP:10,Start:"2026-02-09",End:"2026-03-08"},
+{FY:26,OP:11,Start:"2026-03-09",End:"2026-04-05"},
+{FY:26,OP:12,Start:"2026-04-06",End:"2026-05-03"},
+{FY:26,OP:13,Start:"2026-05-04",End:"2026-05-31"},
+
+{FY:27,OP:1,Start:"2026-06-01",End:"2026-06-28"},
+{FY:27,OP:2,Start:"2026-06-29",End:"2026-07-26"},
+{FY:27,OP:3,Start:"2026-07-27",End:"2026-08-23"},
+{FY:27,OP:4,Start:"2026-08-24",End:"2026-09-20"},
+{FY:27,OP:5,Start:"2026-09-21",End:"2026-10-18"},
+{FY:27,OP:6,Start:"2026-10-19",End:"2026-11-15"},
+{FY:27,OP:7,Start:"2026-11-16",End:"2026-12-13"},
+{FY:27,OP:8,Start:"2026-12-14",End:"2027-01-10"},
+{FY:27,OP:9,Start:"2027-01-11",End:"2027-02-07"},
+{FY:27,OP:10,Start:"2027-02-08",End:"2027-03-07"},
+{FY:27,OP:11,Start:"2027-03-08",End:"2027-04-04"},
+{FY:27,OP:12,Start:"2027-04-05",End:"2027-05-02"},
+{FY:27,OP:13,Start:"2027-05-03",End:"2027-05-30"},
+
+{FY:28,OP:1,Start:"2027-05-31",End:"2027-06-27"},
+{FY:28,OP:2,Start:"2027-06-28",End:"2027-07-25"},
+{FY:28,OP:3,Start:"2027-07-26",End:"2027-08-22"},
+{FY:28,OP:4,Start:"2027-08-23",End:"2027-09-19"},
+{FY:28,OP:5,Start:"2027-09-20",End:"2027-10-17"},
+{FY:28,OP:6,Start:"2027-10-18",End:"2027-11-14"},
+{FY:28,OP:7,Start:"2027-11-15",End:"2027-12-12"},
+{FY:28,OP:8,Start:"2027-12-13",End:"2028-01-09"},
+{FY:28,OP:9,Start:"2028-01-10",End:"2028-02-06"},
+{FY:28,OP:10,Start:"2028-02-07",End:"2028-03-05"},
+{FY:28,OP:11,Start:"2028-03-06",End:"2028-04-02"},
+{FY:28,OP:12,Start:"2028-04-03",End:"2028-04-30"},
+{FY:28,OP:13,Start:"2028-05-01",End:"2028-05-28"},
+
+{FY:29,OP:1,Start:"2028-05-29",End:"2028-06-25"},
+{FY:29,OP:2,Start:"2028-06-26",End:"2028-07-23"},
+{FY:29,OP:3,Start:"2028-07-24",End:"2028-08-20"},
+{FY:29,OP:4,Start:"2028-08-21",End:"2028-09-17"},
+{FY:29,OP:5,Start:"2028-09-18",End:"2028-10-15"},
+{FY:29,OP:6,Start:"2028-10-16",End:"2028-11-12"},
+{FY:29,OP:7,Start:"2028-11-13",End:"2028-12-10"},
+{FY:29,OP:8,Start:"2028-12-11",End:"2029-01-07"},
+{FY:29,OP:9,Start:"2029-01-08",End:"2029-02-04"},
+{FY:29,OP:10,Start:"2029-02-05",End:"2029-03-04"},
+{FY:29,OP:11,Start:"2029-03-05",End:"2029-04-01"},
+{FY:29,OP:12,Start:"2029-04-02",End:"2029-04-29"},
+{FY:29,OP:13,Start:"2029-04-30",End:"2029-05-27"},
+
+{FY:30,OP:1,Start:"2029-05-28",End:"2029-06-24"},
+{FY:30,OP:2,Start:"2029-06-25",End:"2029-07-22"},
+{FY:30,OP:3,Start:"2029-07-23",End:"2029-08-19"},
+{FY:30,OP:4,Start:"2029-08-20",End:"2029-09-16"},
+{FY:30,OP:5,Start:"2029-09-17",End:"2029-10-14"},
+{FY:30,OP:6,Start:"2029-10-15",End:"2029-11-11"},
+{FY:30,OP:7,Start:"2029-11-12",End:"2029-12-09"},
+{FY:30,OP:8,Start:"2029-12-10",End:"2030-01-06"},
+{FY:30,OP:9,Start:"2030-01-07",End:"2030-02-03"},
+{FY:30,OP:10,Start:"2030-02-04",End:"2030-03-03"},
+{FY:30,OP:11,Start:"2030-03-04",End:"2030-03-31"},
+{FY:30,OP:12,Start:"2030-04-01",End:"2030-04-28"},
+{FY:30,OP:13,Start:"2030-04-29",End:"2030-06-03"}
 ];
 
-/* ---------- EST TIME ---------- */
-function estNow(){
- return new Date(
-   new Date().toLocaleString("en-US",{timeZone:"America/New_York"})
- );
+/* =======================
+   2PM EASTERN FISCAL CLOCK
+   ======================= */
+
+function getEasternNow(){
+  return new Date(new Date().toLocaleString("en-US",{timeZone:"America/New_York"}));
 }
 
-/* ---------- BUSINESS DATE (2PM rollover) ---------- */
-function businessDate(){
-
- let d = estNow();
-
- if(d.getHours()<14){
-   d.setDate(d.getDate()-1);
- }
-
- return d;
+function getFiscalDate(){
+  let now = getEasternNow();
+  if(now.getHours() < 14){
+    now.setDate(now.getDate()-1);
+  }
+  now.setHours(0,0,0,0);
+  return now;
 }
 
-/* ---------- FIND CURRENT OP ---------- */
-function currentOP(date){
+function run(){
 
- for(let i=opTable.length-1;i>=0;i--){
-   if(date>=new Date(opTable[i].start)){
-     return opTable[i];
-   }
- }
- return opTable[0];
+  const fiscalDate = getFiscalDate();
+
+  let current;
+
+  for(const op of opData){
+    const s = new Date(op.Start+"T00:00:00");
+    const e = new Date(op.End+"T23:59:59");
+    if(fiscalDate >= s && fiscalDate <= e){
+      current = op;
+      break;
+    }
+  }
+
+  if(!current){
+    document.getElementById("output").innerText="Date not in table";
+    return;
+  }
+
+  const start = new Date(current.Start+"T00:00:00");
+  const diffDays = Math.floor((fiscalDate - start)/(1000*60*60*24));
+  const day = diffDays + 1;
+  const week = Math.ceil(day/7);
+
+  document.getElementById("output").innerText =
+    `FY${current.FY} OP${current.OP} Week ${week} Day ${day}`;
 }
 
-/* ---------- CALCULATE WEEK + DAY ---------- */
-function weekDay(opStart){
-
- let nowEST = estNow();
- let bd = businessDate();
-
- let days = Math.floor((bd - new Date(opStart)) / 86400000);
-
- let week = Math.floor(days/7)+1;
-
- let dayOfWeek = (nowEST.getDay()+6)%7;
-
- /* Monday before 2PM = Day 0 */
- if(nowEST.getDay()==1 && nowEST.getHours()<14){
-   dayOfWeek = 0;
- } else{
-   dayOfWeek = dayOfWeek+1;
- }
-
- return {week,dayOfWeek};
-}
-
-/* ---------- UPDATE DISPLAY ---------- */
-function update(){
-
- let bd = businessDate();
-
- let op = currentOP(bd);
-
- let wd = weekDay(op.start);
-
- document.getElementById("fyop").innerHTML =
-   "FY"+op.fy+
-   " OP"+op.op+
-   " Week "+wd.week+
-   " Day "+wd.dayOfWeek;
-}
-
-update();
-setInterval(update,60000);
+run();
 
 </script>
-
 </body>
 </html>
